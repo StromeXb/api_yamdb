@@ -2,8 +2,15 @@ from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
-from .models import Title, Review
-from .serializers import ReviewSerializer, CommentSerializer
+from models import Title, Review
+from serializers import ReviewSerializer, CommentSerializer
+
+from rest_framework_simplejwt.tokens import RefreshToken
+
+
+def _get_token_for_user(user):
+    refresh = RefreshToken.for_user(user)
+    return str(refresh.access_token)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
