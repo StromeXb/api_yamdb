@@ -7,7 +7,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     """
     Сериализатор для рецензий
     """
-    author = serializers.SlugField(read_only=True, slug_field='username')
+    author = serializers.SlugRelatedField(read_only=True, slug_field='username')
 
     class Meta:
         exclude = ('title', )
@@ -18,7 +18,7 @@ class CommentSerializer(serializers.ModelSerializer):
     """
     Сериализатор для комментариев
     """
-    author = serializers.SlugField(read_only=True, slug_field='username')
+    author = serializers.SlugRelatedField(read_only=True, slug_field='username')
 
     class Meta:
         exclude = ('review',)
