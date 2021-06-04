@@ -1,5 +1,6 @@
 from django.contrib import admin
-
+from django.contrib.auth import get_user_model
+from django.contrib.auth.admin import UserAdmin
 from .models import Category, Genre, Title
 
 
@@ -37,3 +38,14 @@ class CategoryAdmin(admin.ModelAdmin):
     search_fields = ('name', 'slug',)
     list_filter = ('name',)
     empty_value_display = '-пусто-'
+
+
+User = get_user_model()
+
+
+class ManualUser(UserAdmin):
+    model = User
+    list_display = ('username', 'email', 'bio', 'role')
+
+
+admin.site.register(User, ManualUser)
