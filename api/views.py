@@ -1,15 +1,23 @@
+import django_filters.rest_framework
+
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, mixins, viewsets
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework_simplejwt.tokens import RefreshToken
 
+from .filters import TitleFilter
 from .models import Category, Genre, Review, Title
 from .permissions import IsAdminPermission
 from .serializers import (
     CategorySerializer, CommentSerializer, GenreSerializer, ReviewSerializer,
-    TitleSerializer,
+    TitleCreateSerializer, TitleSerializer,
 )
 
+
+def _get_token_for_user(user):
+    refresh = RefreshToken.for_user(user)
+    return str(refresh.access_token)
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
@@ -78,9 +86,13 @@ class CategoryViewSet(ListCreateDestroyViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    serializer_class = TitleSerializer
     queryset = Title.objects.all()
     paginator_class = PageNumberPagination
     permission_classes = [IsAdminPermission]
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['name']
+    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
+    filterset_class = TitleFilter
+
+    def get_serializer_class(self):
+        if self.action == ('create' or 'partial_update'):
+            return TitleCreateSerializer
+        return TitleSerializer
