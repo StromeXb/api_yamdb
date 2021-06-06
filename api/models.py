@@ -1,8 +1,7 @@
-import uuid
+# import uuid
 
 from django.contrib.auth.models import AbstractUser
-
-from django.contrib.auth import get_user_model
+# from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models.aggregates import Avg
@@ -77,11 +76,8 @@ class Title(models.Model):
     genre = models.ManyToManyField(
         Genre,
         symmetrical=False,
-        # on_delete=models.SET_NULL,
         related_name='titles',
         verbose_name='Жанр публикации',
-        blank=True,
-        # null=True
     )
     category = models.ForeignKey(
         Category,
