@@ -19,7 +19,6 @@ def _get_token_for_user(user):
     refresh = RefreshToken.for_user(user)
     return str(refresh.access_token)
 
-
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
