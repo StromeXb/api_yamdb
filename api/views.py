@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly, BasePermission
 from django.contrib.auth import get_user_model
 
 from .models import Title, Review
-from .serializers import ReviewSerializer, CommentSerializer, ConfirmationCodeTokenObtainSerializer
+from .serializers import ReviewSerializer, CommentSerializer, ConfirmationCodeTokenObtainSerializer, UserSerializer
 from django.contrib.auth.tokens import default_token_generator
 
 
@@ -81,3 +81,19 @@ def generate_code(request):
 class ConfirmationCodeTokenObtain(TokenViewBase):
     permission_classes = [BasePermission]
     serializer_class = ConfirmationCodeTokenObtainSerializer
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    queryset = User.objects.all()
+
+    # def perform_create(self, serializer):
+    #     serializer.save(
+    #         author=self.request.user,
+    #         review=get_object_or_404(
+    #             Review,
+    #             id=self.kwargs.get('review_id'),
+    #             title__id=self.kwargs.get('title_id')
+    #         )
+    #     )

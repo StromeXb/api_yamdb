@@ -1,7 +1,7 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from .views import ReviewViewSet, CommentViewSet, generate_code, ConfirmationCodeTokenObtain
+from .views import ReviewViewSet, CommentViewSet, generate_code, ConfirmationCodeTokenObtain, UserViewSet
 
 router = DefaultRouter()
 router.register(
@@ -14,6 +14,8 @@ router.register(
     CommentViewSet,
     basename='Comments of review'
 )
+
+router.register('users', UserViewSet)
 
 # router.register('auth/email', generate_code, basename='generate code')
 

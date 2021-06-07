@@ -28,7 +28,7 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
 
 
-from rest_framework_simplejwt.serializers import TokenObtainSerializer, RefreshToken
+from rest_framework_simplejwt.serializers import RefreshToken
 from rest_framework_simplejwt.exceptions import AuthenticationFailed
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.tokens import default_token_generator
@@ -48,10 +48,12 @@ class ConfirmationCodeTokenObtainSerializer(serializers.Serializer):
         return RefreshToken.for_user(user)
 
     def validate(self, attrs):
+
         authenticate_kwargs = {
             self.username_field: attrs[self.username_field],
             'confirmation_code': attrs['confirmation_code'],
         }
+
         try:
             authenticate_kwargs['request'] = self.context['request']
         except KeyError:
@@ -65,9 +67,20 @@ class ConfirmationCodeTokenObtainSerializer(serializers.Serializer):
                 self.error_messages['confirmation_code'],
                 'confirmation_code is not valid',
             )
+
         data = {}
         refresh = self.get_token(user)
 
         data['access'] = str(refresh.access_token)
 
         return data
+
+
+class UserSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для пользователей
+    """
+
+    class Meta:
+        fields = '__all__'
+        model = get_user_model()
