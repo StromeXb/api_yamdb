@@ -4,8 +4,9 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly, BasePermission
 from django.contrib.auth import get_user_model
 
 from .models import Title, Review
-from .serializers import ReviewSerializer, CommentSerializer
+from .serializers import ReviewSerializer, CommentSerializer, ConfirmationCodeTokenObtainSerializer
 from django.contrib.auth.tokens import default_token_generator
+
 
 User = get_user_model()
 
@@ -48,9 +49,11 @@ class CommentViewSet(viewsets.ModelViewSet):
             )
         )
 
+
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework_simplejwt.views import TokenViewBase
 
 
 @api_view(['POST'])
@@ -74,3 +77,7 @@ def generate_code(request):
         )
         return Response({'confirmation_code': f'{confirmation_code}'})
 
+
+class ConfirmationCodeTokenObtain(TokenViewBase):
+    permission_classes = [BasePermission]
+    serializer_class = ConfirmationCodeTokenObtainSerializer
