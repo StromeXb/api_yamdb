@@ -1,9 +1,9 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 
-from .models import Review, Comment, Title
+from .models import Review, Comment, CustomUser
 
-User = get_user_model()
+# User = get_user_model()
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -83,4 +83,4 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = '__all__'
-        model = get_user_model()
+        model = CustomUser

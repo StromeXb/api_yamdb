@@ -1,9 +1,25 @@
-from django.contrib.auth import get_user_model
+# from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models.aggregates import Avg
+from django.contrib.auth.models import AbstractUser
 
-User = get_user_model()
+# User = get_user_model()
+
+
+class Roles(models.TextChoices):
+    USER = 'user'
+    MODERATOR = 'moderator'
+    ADMIN = 'admin'
+
+
+class CustomUser(AbstractUser):
+    username = models.CharField(max_length=30, unique=True,
+                                blank=False, null=False)
+    email = models.EmailField(max_length=255, unique=True,
+                              blank=False, null=False)
+    bio = models.CharField(max_length=4000, null=True)
+    role = models.CharField(max_length=50, choices=Roles.choices)
 
 
 class Title(models.Model):
@@ -25,7 +41,7 @@ class Review(models.Model):
         Title, on_delete=models.CASCADE, related_name='reviews'
     )
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='reviews'
+        CustomUser, on_delete=models.CASCADE, related_name='reviews'
     )
     text = models.TextField()
     score = models.IntegerField(
@@ -50,7 +66,7 @@ class Comment(models.Model):
         Review, on_delete=models.CASCADE, related_name='comments'
     )
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='comments'
+        CustomUser, on_delete=models.CASCADE, related_name='comments'
     )
     text = models.TextField()
     pub_date = models.DateTimeField(auto_now_add=True, db_index=True)

@@ -6,10 +6,13 @@ from django.contrib.auth import get_user_model
 from .models import Title, Review
 from .serializers import ReviewSerializer, CommentSerializer, ConfirmationCodeTokenObtainSerializer, UserSerializer
 from django.contrib.auth.tokens import default_token_generator
+from .permissions import (IsAdmin, IsModerator)
+from rest_framework import decorators
+
 
 
 User = get_user_model()
-
+# BASE_USERNAME = 'User'
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
@@ -85,8 +88,23 @@ class ConfirmationCodeTokenObtain(TokenViewBase):
 
 class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly, IsModerator, IsAdmin]
     queryset = User.objects.all()
+
+    @decorators.action(
+        methods=('get', 'patch'),
+        permission_classes=[IsAuthenticatedOrReadOnly]
+    )
+    def me(self, request):
+        if request.method != 'GET':
+            serializer = self.get_serializer(
+                instance=request.user, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            serializer = self.get_serializer(request.user, many=False)
+            return Response(serializer.data)
 
     # def perform_create(self, serializer):
     #     serializer.save(
