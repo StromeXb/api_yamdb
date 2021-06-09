@@ -10,11 +10,12 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from .filters import TitleFilter
 from .models import Category, Genre, Review, Title, CustomUser
-from .permissions import IsAdminPermission, IsAdmin, IsSuperuser
+from .permissions import IsAdminPermission, IsAdmin, IsSuperuser, IsOwnerOrReadOnly
 from .serializers import (
     CategorySerializer, CommentSerializer, GenreSerializer, ReviewSerializer,
     TitleCreateSerializer, TitleSerializer, UserSerializer
 )
+
 
 class UsersViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
@@ -40,7 +41,7 @@ class UsersViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 
     def get_queryset(self):
         title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
@@ -55,7 +56,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 
     def get_queryset(self):
 

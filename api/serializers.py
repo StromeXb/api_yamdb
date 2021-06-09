@@ -1,4 +1,5 @@
 from rest_framework import serializers
+import re
 
 from .models import Category, Comment, Genre, Review, Title, Roles, CustomUser
 
@@ -11,28 +12,6 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('first_name', 'last_name', 'username',
                   'bio', 'email', 'role')
         model = CustomUser
-
-
-class ReviewSerializer(serializers.ModelSerializer):
-    """
-    Сериализатор для рецензий
-    """
-    author = serializers.SlugRelatedField(read_only=True, slug_field='username')
-
-    class Meta:
-        exclude = ('title', )
-        model = Review
-
-
-class CommentSerializer(serializers.ModelSerializer):
-    """
-    Сериализатор для комментариев
-    """
-    author = serializers.SlugRelatedField(read_only=True, slug_field='username')
-
-    class Meta:
-        exclude = ('review',)
-        model = Comment
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -64,6 +43,7 @@ class TitleSerializer(serializers.ModelSerializer):
 
     category = CategorySerializer(read_only=True)
     genre = GenreSerializer(many=True, read_only=True)
+    rating = serializers.FloatField(read_only=True)
 
     class Meta:
         fields = '__all__'
@@ -81,3 +61,40 @@ class TitleCreateSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = Title
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для рецензий
+    """
+
+    author = serializers.SlugRelatedField(read_only=True, slug_field='username')
+
+    class Meta:
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
+        model = Review
+
+    def validate(self, attrs):
+        if self.context.get('request').method == 'POST':
+            author = self.context.get('request').user
+            title_id = re.findall(
+                r'titles/(?P<title_id>\d+)/reviews', self.context.get('request').path
+            )[0]
+            if Review.objects.filter(author=author, title__id=title_id).exists():
+                raise serializers.ValidationError(
+                    'Title already has your review.'
+                )
+        return attrs
+
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для комментариев
+    """
+
+    author = serializers.SlugRelatedField(read_only=True, slug_field='username')
+
+    class Meta:
+        exclude = ('review',)
+        model = Comment
