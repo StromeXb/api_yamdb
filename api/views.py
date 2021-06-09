@@ -1,23 +1,42 @@
 import django_filters.rest_framework
-
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, mixins, viewsets
+from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
+from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .filters import TitleFilter
-from .models import Category, Genre, Review, Title
-from .permissions import IsAdminPermission
+from .models import Category, Genre, Review, Title, CustomUser
+from .permissions import IsAdminPermission, IsAdmin, IsSuperuser
 from .serializers import (
     CategorySerializer, CommentSerializer, GenreSerializer, ReviewSerializer,
-    TitleCreateSerializer, TitleSerializer,
+    TitleCreateSerializer, TitleSerializer, UserSerializer
 )
 
+class UsersViewSet(viewsets.ModelViewSet):
+    serializer_class = UserSerializer
+    queryset = CustomUser.objects.all()
+    lookup_field = 'username'
+    permission_classes = (IsAuthenticated, IsSuperuser | IsAdmin,)
 
-def _get_token_for_user(user):
-    refresh = RefreshToken.for_user(user)
-    return str(refresh.access_token)
+    @action(detail=False,
+            permission_classes=[IsAuthenticated],
+            methods=['get', 'patch'],
+            url_path='me')
+    def me(self, request):
+        if request.method != 'GET':
+            serializer = self.get_serializer(
+                instance=request.user, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            serializer = self.get_serializer(request.user, many=False)
+            return Response(serializer.data)
+          
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer

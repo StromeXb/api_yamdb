@@ -1,45 +1,9 @@
-# import uuid
-
 from django.contrib.auth.models import AbstractUser
 # from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models.aggregates import Avg
 
 # User = get_user_model()
-
-
-class ManualUser(AbstractUser):
-    class Role(models.TextChoices):
-        USER = 'user'
-        MODERATOR = 'moderator'
-        ADMIN = 'admin'
-
-    email = models.EmailField(unique=True, blank=False)
-    bio = models.TextField(blank=True)
-    role = models.CharField(
-        max_length=100,
-        choices=Role.choices,
-        default=Role.USER,
-    )
-
-    @property
-    def is_admin(self):
-        return self.is_superuser or (self.role == self.Role.ADMIN)
-
-    @property
-    def is_moderator(self):
-        return self.role == self.Role.MODERATOR
-
-    class Meta:
-        ordering = ('-date_joined',)
-
-    def __str__(self):
-        if self.username:
-            name = f'{self.username}:{self.email}'
-        else:
-            name = self.email
-        return name
 
 
 class Genre(models.Model):
@@ -56,6 +20,29 @@ class Category(models.Model):
     slug = models.SlugField('Уникальный адрес', unique=True)
 
 
+class Roles(models.TextChoices):
+    USER = 'user'
+    MODERATOR = 'moderator'
+    ADMIN = 'admin'
+
+
+class CustomUser(AbstractUser):
+    username = models.CharField(max_length=30, unique=True,
+                                blank=False, null=False)
+    email = models.EmailField(max_length=255, unique=True,
+                              blank=False, null=False)
+    bio = models.CharField(max_length=4000, null=True)
+    role = models.CharField(max_length=50, choices=Roles.choices)
+    
+    @property
+    def is_admin(self):
+        return self.is_staff or self.role == Roles.ADMIN
+
+    @property
+    def is_moderator(self):
+        return self.role == Roles.MODERATOR
+
+      
 class Title(models.Model):
     """Класс описывает модель для произведения."""
 
@@ -129,7 +116,7 @@ class Review(models.Model):
         ]
         ordering = ['-pub_date']
 
-
+      
 class Comment(models.Model):
     """
     Класс описывает комментарии к рецензиям
@@ -145,3 +132,4 @@ class Comment(models.Model):
 
     class Meta:
         ordering = ['-pub_date']
+
