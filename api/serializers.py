@@ -1,6 +1,5 @@
 from rest_framework import serializers
 
-from .models import 
 from .models import Category, Comment, Genre, Review, Title, Roles, CustomUser
 
 
@@ -14,11 +13,22 @@ class UserSerializer(serializers.ModelSerializer):
         model = CustomUser
 
 
+class ReviewSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для рецензий
+    """
+    author = serializers.SlugRelatedField(read_only=True, slug_field='username')
+
+    class Meta:
+        exclude = ('title', )
+        model = Review
+
+
 class CommentSerializer(serializers.ModelSerializer):
     """
     Сериализатор для комментариев
     """
-    author = serializers.SlugField(read_only=True, slug_field='username')
+    author = serializers.SlugRelatedField(read_only=True, slug_field='username')
 
     class Meta:
         exclude = ('review',)
