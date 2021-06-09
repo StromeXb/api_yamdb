@@ -1,26 +1,12 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from .views import ReviewViewSet, CommentViewSet, generate_code, ConfirmationCodeTokenObtain, UserViewSet
 
-router = DefaultRouter()
-router.register(
-    r'titles/(?P<title_id>\d+)/reviews',
-    ReviewViewSet,
-    basename='Reviews of title'
-)
-router.register(
-    r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments',
-    CommentViewSet,
-    basename='Comments of review'
-)
+from .views import UsersViewSet
 
-router.register('users', UserViewSet)
-
-# router.register('auth/email', generate_code, basename='generate code')
+router_v1 = DefaultRouter()
+router_v1.register(r'users', UsersViewSet, basename='users')
 
 urlpatterns = [
-    path('v1/', include(router.urls)),
-    path('v1/auth/email/', generate_code),
-    path('v1/auth/token/', ConfirmationCodeTokenObtain.as_view())
+    path('v1/', include(router_v1.urls)),
 ]
