@@ -1,7 +1,7 @@
 import django_filters.rest_framework
 
 from django.shortcuts import get_object_or_404
-from rest_framework import filters, mixins, viewsets
+from rest_framework import filters, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (
     IsAuthenticated, IsAuthenticatedOrReadOnly,
@@ -17,6 +17,7 @@ from .serializers import (
     CategorySerializer, CommentSerializer, GenreSerializer, ReviewSerializer,
     TitleCreateSerializer, TitleSerializer, UserSerializer,
 )
+from .viewsets import ListCreateDestroyViewSet
 
 
 class UsersViewSet(viewsets.ModelViewSet):
@@ -78,15 +79,6 @@ class CommentViewSet(viewsets.ModelViewSet):
                 title__id=self.kwargs.get('title_id')
             )
         )
-
-
-class ListCreateDestroyViewSet(
-    mixins.CreateModelMixin,
-    mixins.ListModelMixin,
-    mixins.DestroyModelMixin,
-    viewsets.GenericViewSet
-):
-    pass
 
 
 class GenreViewSet(ListCreateDestroyViewSet):
