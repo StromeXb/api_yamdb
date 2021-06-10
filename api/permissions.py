@@ -23,8 +23,10 @@ class IsSuperuser(permissions.BasePermission):
 
 class IsAdminPermission(permissions.BasePermission):
     def has_permission(self, request, view):
-        return (request.method in permissions.SAFE_METHODS
-                or request.user.is_superuser)
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        if request.user.is_authenticated:
+            return request.user.is_staff
 
 
 class IsOwnerOrReadOnly(permissions.BasePermission):

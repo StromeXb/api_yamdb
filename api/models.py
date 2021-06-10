@@ -13,12 +13,22 @@ class Genre(models.Model):
     name = models.CharField('Название жанра', max_length=200)
     slug = models.SlugField('Уникальный адрес', unique=True)
 
+    class Meta:
+        verbose_name = "Жанр"
+        verbose_name_plural = "Жанры"
+        ordering = ['name']
+
 
 class Category(models.Model):
     """Класс описывает модель для категории."""
 
     name = models.CharField('Название категории', max_length=200)
     slug = models.SlugField('Уникальный адрес', unique=True)
+
+    class Meta:
+        verbose_name = "Категория"
+        verbose_name_plural = "Категории"
+        ordering = ['name']
 
 
 class Roles(models.TextChoices):
@@ -34,7 +44,7 @@ class CustomUser(AbstractUser):
                               blank=False, null=False)
     bio = models.CharField(max_length=4000, null=True)
     role = models.CharField(max_length=50, choices=Roles.choices)
-    
+
     @property
     def is_admin(self):
         return self.is_staff or self.role == Roles.ADMIN
@@ -43,7 +53,7 @@ class CustomUser(AbstractUser):
     def is_moderator(self):
         return self.role == Roles.MODERATOR
 
-      
+
 class Title(models.Model):
     """Класс описывает модель для произведения."""
 
@@ -79,6 +89,7 @@ class Title(models.Model):
     class Meta:
         verbose_name = "Произведение"
         verbose_name_plural = "Произведения"
+        ordering = ['name']
 
     def __str__(self):
         """при печати объекта выводится название произведения."""
@@ -117,7 +128,7 @@ class Review(models.Model):
         ]
         ordering = ['-pub_date']
 
-      
+
 class Comment(models.Model):
     """
     Класс описывает комментарии к рецензиям
@@ -133,4 +144,3 @@ class Comment(models.Model):
 
     class Meta:
         ordering = ['-pub_date']
-

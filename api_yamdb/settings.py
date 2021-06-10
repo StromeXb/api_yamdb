@@ -28,8 +28,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'api',
-    'auth_app'
-    # 'django_filters',
+    'auth_app',
+    'django_filters',
 ]
 
 # переопределённая модель
