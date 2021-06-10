@@ -2,11 +2,13 @@ import django_filters.rest_framework
 
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
-from rest_framework import filters, viewsets
-from rest_framework.decorators import action
+from rest_framework import filters, status, viewsets
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import (
     AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly,
 )
+from rest_framework.response import Response
+from rest_framework_simplejwt.views import TokenViewBase
 
 from .filters import TitleFilter
 from .models import Category, CustomUser, Genre, Review, Title
@@ -112,16 +114,12 @@ class TitleViewSet(viewsets.ModelViewSet):
         return TitleSerializer
 
 
-from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.response import Response
-from rest_framework_simplejwt.views import TokenViewBase
-
-
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def generate_code(request):
-
+    """
+    вью для отправки кода на почту
+    """
     if request.method == 'POST':
         email = request.POST.get('email')
         if email:
