@@ -42,6 +42,9 @@ class CustomUser(AbstractUser):
     bio = models.CharField(max_length=4000, null=True)
     role = models.CharField(max_length=50, choices=Roles.choices)
 
+    class Meta:
+        ordering = ('-id',)
+
     @property
     def is_admin(self):
         return self.is_staff or self.role == Roles.ADMIN
