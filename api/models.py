@@ -42,6 +42,9 @@ class CustomUser(AbstractUser):
     bio = models.CharField(max_length=4000, null=True)
     role = models.CharField(max_length=50, choices=Roles.choices)
 
+    EMAIL_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
     class Meta:
         ordering = ('-id',)
 

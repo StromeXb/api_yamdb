@@ -1,6 +1,53 @@
+from django.contrib.auth.tokens import default_token_generator
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
+from rest_framework_simplejwt.exceptions import AuthenticationFailed
+from rest_framework_simplejwt.serializers import RefreshToken
 
 from .models import Category, Comment, CustomUser, Genre, Review, Roles, Title
+
+
+class ConfirmationCodeTokenObtainSerializer(serializers.Serializer):
+
+    email_field = CustomUser.EMAIL_FIELD
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields[self.email_field] = serializers.CharField()
+        self.fields['confirmation_code'] = serializers.CharField()
+
+    @classmethod
+    def get_token(cls, user):
+        return RefreshToken.for_user(user)
+
+    def validate(self, attrs):
+
+        authenticate_kwargs = {
+            self.email_field: attrs[self.email_field],
+            'confirmation_code': attrs['confirmation_code'],
+        }
+
+        try:
+            authenticate_kwargs['request'] = self.context['request']
+        except KeyError:
+            pass
+
+        user = get_object_or_404(CustomUser, email=attrs[self.email_field])
+        check_token = default_token_generator.check_token(user, attrs['confirmation_code'])
+
+        if not check_token:
+            raise AuthenticationFailed(
+                self.error_messages['confirmation_code'],
+                'confirmation_code is not valid',
+            )
+
+        data = {}
+        refresh = self.get_token(user)
+
+        data['access'] = str(refresh.access_token)
+
+        return data
 
 
 class UserSerializer(serializers.ModelSerializer):
