@@ -1,12 +1,12 @@
 import django_filters.rest_framework
 
+from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (
-    IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
+    AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly,
 )
-from django.contrib.auth.tokens import default_token_generator
 
 from .filters import TitleFilter
 from .models import Category, CustomUser, Genre, Review, Title
@@ -14,9 +14,9 @@ from .permissions import (
     IsAdmin, IsAdminPermission, IsOwnerOrReadOnly, IsSuperuser,
 )
 from .serializers import (
-    CategorySerializer, CommentSerializer, GenreSerializer, ReviewSerializer,
+    CategorySerializer, CommentSerializer,
+    ConfirmationCodeTokenObtainSerializer, GenreSerializer, ReviewSerializer,
     TitleCreateSerializer, TitleSerializer, UserSerializer,
-    ConfirmationCodeTokenObtainSerializer
 )
 
 
@@ -120,9 +120,9 @@ class TitleViewSet(viewsets.ModelViewSet):
         return TitleSerializer
 
 
+from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework import status
 from rest_framework_simplejwt.views import TokenViewBase
 
 
