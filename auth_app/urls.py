@@ -1,4 +1,5 @@
 from django.urls import path
+
 from .views import auth_send_email, auth_token
 
 auth_url_patterns = [

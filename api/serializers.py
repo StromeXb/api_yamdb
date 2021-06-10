@@ -1,7 +1,6 @@
 from rest_framework import serializers
-import re
 
-from .models import Category, Comment, Genre, Review, Title, Roles, CustomUser
+from .models import Category, Comment, CustomUser, Genre, Review, Roles, Title
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -79,10 +78,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         if self.context.get('request').method == 'POST':
             author = self.context.get('request').user
-            title_id = re.findall(
-                r'titles/(?P<title_id>\d+)/reviews',
-                self.context.get('request').path
-            )[0]
+            title_id = self.context.get('view').kwargs['title_id']
             if Review.objects.filter(
                 author=author, title__id=title_id
             ).exists():

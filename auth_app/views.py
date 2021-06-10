@@ -1,10 +1,8 @@
+from django.contrib.auth import get_user_model
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.http import HttpResponse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
-from django.http import HttpResponse
-from django.contrib.auth import get_user_model
-from django.core.mail import send_mail
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
-
 
 User = get_user_model()
 token_generator = PasswordResetTokenGenerator()

@@ -1,5 +1,5 @@
-from django_filters import rest_framework
-from django_filters import filters
+from django_filters import filters, rest_framework
+
 from .models import Title
 
 
