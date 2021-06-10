@@ -4,9 +4,9 @@ from django.shortcuts import get_object_or_404
 from rest_framework import filters, mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (
-    IsAuthenticated, IsAuthenticatedOrReadOnly,
+    IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 )
-from rest_framework.response import Response
+from django.contrib.auth.tokens import default_token_generator
 
 from .filters import TitleFilter
 from .models import Category, CustomUser, Genre, Review, Title
@@ -16,6 +16,7 @@ from .permissions import (
 from .serializers import (
     CategorySerializer, CommentSerializer, GenreSerializer, ReviewSerializer,
     TitleCreateSerializer, TitleSerializer, UserSerializer,
+    ConfirmationCodeTokenObtainSerializer
 )
 
 
@@ -117,3 +118,36 @@ class TitleViewSet(viewsets.ModelViewSet):
         if self.action in ['create', 'partial_update']:
             return TitleCreateSerializer
         return TitleSerializer
+
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework_simplejwt.views import TokenViewBase
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def generate_code(request):
+
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        if email:
+            user, created = CustomUser.objects.get_or_create(email=email)
+            confirmation_code = default_token_generator.make_token(user)
+        else:
+            return Response(
+                'Please provide email via "email" field',
+                status=status.HTTP_403_FORBIDDEN
+            )
+        user.email_user(
+            subject='confirmation_code',
+            message=f'Your confirmation code is {confirmation_code}',
+            from_email='vader@starwars.tat'
+        )
+        return Response({'confirmation_code': f'{confirmation_code}'})
+
+
+class ConfirmationCodeTokenObtain(TokenViewBase):
+    permission_classes = [AllowAny]
+    serializer_class = ConfirmationCodeTokenObtainSerializer
