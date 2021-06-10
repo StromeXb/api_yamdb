@@ -17,7 +17,6 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
 
-from auth_app.urls import auth_url_patterns
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,5 +26,4 @@ urlpatterns = [
         name='redoc'
     ),
     path('api/', include('api.urls')),
-    path('auth_app/', include(auth_url_patterns)),
 ]

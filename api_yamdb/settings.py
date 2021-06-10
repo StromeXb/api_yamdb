@@ -28,12 +28,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'api',
-    'auth_app',
     'django_filters',
 ]
-
-# переопределённая модель
-AUTH_USER_MODEL = 'api.ManualUser'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -96,6 +92,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# переопределённая модель
 AUTH_USER_MODEL = 'api.CustomUser'
 
 # Internationalization
