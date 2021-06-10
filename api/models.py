@@ -1,19 +1,109 @@
-from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models.aggregates import Avg
 
-User = get_user_model()
+
+class Genre(models.Model):
+    """Класс описывает модель для жанра."""
+
+    name = models.CharField('Название жанра', max_length=200)
+    slug = models.SlugField('Уникальный адрес', unique=True)
+
+    class Meta:
+        verbose_name = "Жанр"
+        verbose_name_plural = "Жанры"
+        ordering = ['name']
+
+
+class Category(models.Model):
+    """Класс описывает модель для категории."""
+
+    name = models.CharField('Название категории', max_length=200)
+    slug = models.SlugField('Уникальный адрес', unique=True)
+
+    class Meta:
+        verbose_name = "Категория"
+        verbose_name_plural = "Категории"
+        ordering = ['name']
+
+
+class Roles(models.TextChoices):
+    USER = 'user'
+    MODERATOR = 'moderator'
+    ADMIN = 'admin'
+
+
+class CustomUser(AbstractUser):
+    username = models.CharField(max_length=30, unique=True,
+                                blank=False, null=False)
+    email = models.EmailField(max_length=255, unique=True,
+                              blank=False, null=False)
+    bio = models.CharField(max_length=4000, null=True)
+    role = models.CharField(max_length=50, choices=Roles.choices)
+
+    EMAIL_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
+    class Meta:
+        ordering = ('-id',)
+
+    @property
+    def is_admin(self):
+        return self.is_staff or self.role == Roles.ADMIN
+
+    @property
+    def is_moderator(self):
+        return self.role == Roles.MODERATOR
 
 
 class Title(models.Model):
-    # Часть Ани
+    """Класс описывает модель для произведения."""
+
+    name = models.CharField(
+        'Название произведения',
+        max_length=200,
+        help_text='Введите название произведения'
+    )
+    year = models.IntegerField(
+        'Год выпуска',
+        validators=[MinValueValidator(1500), MaxValueValidator(2100)],
+        help_text='Введите год выпуска произведения'
+    )
+    description = models.TextField(
+        'Описание произведения',
+        help_text='Введите описание произведения'
+    )
+    genre = models.ManyToManyField(
+        Genre,
+        symmetrical=False,
+        related_name='titles',
+        verbose_name='Жанр публикации',
+    )
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.SET_NULL,
+        related_name='titles',
+        verbose_name='Категория произведения',
+        blank=True,
+        null=True
+    )
+
+    class Meta:
+        verbose_name = "Произведение"
+        verbose_name_plural = "Произведения"
+        ordering = ['name']
+
+    def __str__(self):
+        """при печати объекта выводится название произведения."""
+
+        return self.name
 
     @property
     def rating(self):
-        rating = self.reviews.aggregate(Avg('score'))
+        rating = self.reviews.aggregate(rating=Avg('score'))
         if rating:
-            return rating
+            return rating['rating']
         return None
 
 
@@ -25,7 +115,7 @@ class Review(models.Model):
         Title, on_delete=models.CASCADE, related_name='reviews'
     )
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='reviews'
+        CustomUser, on_delete=models.CASCADE, related_name='reviews'
     )
     text = models.TextField()
     score = models.IntegerField(
@@ -50,7 +140,7 @@ class Comment(models.Model):
         Review, on_delete=models.CASCADE, related_name='comments'
     )
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='comments'
+        CustomUser, on_delete=models.CASCADE, related_name='comments'
     )
     text = models.TextField()
     pub_date = models.DateTimeField(auto_now_add=True, db_index=True)
