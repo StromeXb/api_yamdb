@@ -34,7 +34,9 @@ class ConfirmationCodeTokenObtainSerializer(serializers.Serializer):
             pass
 
         user = get_object_or_404(CustomUser, email=attrs[self.email_field])
-        check_token = default_token_generator.check_token(user, attrs['confirmation_code'])
+        check_token = default_token_generator.check_token(
+            user, attrs['confirmation_code']
+        )
 
         if not check_token:
             raise AuthenticationFailed(
