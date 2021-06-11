@@ -3,6 +3,8 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models.aggregates import Avg
 
+from .validators import pub_year_validator
+
 
 class Genre(models.Model):
     """Класс описывает модель для жанра."""
@@ -67,7 +69,7 @@ class Title(models.Model):
     )
     year = models.IntegerField(
         'Год выпуска',
-        validators=[MinValueValidator(1500), MaxValueValidator(2100)],
+        validators=[pub_year_validator],
         help_text='Введите год выпуска произведения'
     )
     description = models.TextField(
