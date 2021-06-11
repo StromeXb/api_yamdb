@@ -66,7 +66,7 @@ class CategorySerializer(serializers.ModelSerializer):
     """Сериализатор для категорий."""
 
     class Meta:
-        fields = ('name', 'slug')
+        exclude = ('id', )
         model = Category
         lookup_field = 'slug'
         extra_kwargs = {
@@ -78,7 +78,7 @@ class GenreSerializer(serializers.ModelSerializer):
     """Сериализатор для жанров."""
 
     class Meta:
-        fields = ('name', 'slug')
+        exclude = ('id', )
         model = Genre
         lookup_field = 'slug'
         extra_kwargs = {
