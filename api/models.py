@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from .validators import pub_year_validator
@@ -118,10 +119,10 @@ class Review(models.Model):
     )
     text = models.TextField()
     score = models.IntegerField(
-        choices=[(i, i) for i in range(0, 11)], error_messages={
-            'invalid': 'This value must be an integer 0 to 10'
-        }
-
+        validators=[
+            MinValueValidator(0, 'This value must be an integer 0 to 10'),
+            MaxValueValidator(10, 'This value must be an integer 0 to 10')
+        ]
     )
     pub_date = models.DateTimeField(auto_now_add=True, db_index=True)
 
