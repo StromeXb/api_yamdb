@@ -1,8 +1,8 @@
 import django_filters.rest_framework
 
 from django.conf import settings
-from django.db.models.aggregates import Avg
 from django.contrib.auth.tokens import default_token_generator
+from django.db.models.aggregates import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
