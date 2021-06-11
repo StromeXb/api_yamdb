@@ -23,16 +23,6 @@ class ConfirmationCodeTokenObtainSerializer(serializers.Serializer):
 
     def validate(self, attrs):
 
-        authenticate_kwargs = {
-            self.email_field: attrs[self.email_field],
-            'confirmation_code': attrs['confirmation_code'],
-        }
-
-        try:
-            authenticate_kwargs['request'] = self.context['request']
-        except KeyError:
-            pass
-
         user = get_object_or_404(CustomUser, email=attrs[self.email_field])
         check_token = default_token_generator.check_token(
             user, attrs['confirmation_code']

@@ -1,7 +1,5 @@
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models.aggregates import Avg
 
 from .validators import pub_year_validator
 
@@ -13,8 +11,8 @@ class Genre(models.Model):
     slug = models.SlugField('Уникальный адрес', unique=True)
 
     class Meta:
-        verbose_name = "Жанр"
-        verbose_name_plural = "Жанры"
+        verbose_name = 'Жанр'
+        verbose_name_plural = 'Жанры'
         ordering = ['name']
 
 
@@ -25,8 +23,8 @@ class Category(models.Model):
     slug = models.SlugField('Уникальный адрес', unique=True)
 
     class Meta:
-        verbose_name = "Категория"
-        verbose_name_plural = "Категории"
+        verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
         ordering = ['name']
 
 
@@ -98,21 +96,14 @@ class Title(models.Model):
     )
 
     class Meta:
-        verbose_name = "Произведение"
-        verbose_name_plural = "Произведения"
+        verbose_name = 'Произведение'
+        verbose_name_plural = 'Произведения'
         ordering = ['name']
 
     def __str__(self):
         """при печати объекта выводится название произведения."""
 
         return self.name
-
-    @property
-    def rating(self):
-        rating = self.reviews.aggregate(rating=Avg('score'))
-        if rating:
-            return rating['rating']
-        return None
 
 
 class Review(models.Model):
@@ -127,7 +118,10 @@ class Review(models.Model):
     )
     text = models.TextField()
     score = models.IntegerField(
-        validators=[MinValueValidator(0), MaxValueValidator(10)]
+        choices=[(i, i) for i in range(0, 11)], error_messages={
+            'invalid': 'This value must be an integer 0 to 10'
+        }
+
     )
     pub_date = models.DateTimeField(auto_now_add=True, db_index=True)
 
@@ -138,6 +132,8 @@ class Review(models.Model):
             ),
         ]
         ordering = ['-pub_date']
+        verbose_name = 'Рецензия'
+        verbose_name_plural = 'Рецензии'
 
 
 class Comment(models.Model):
@@ -155,3 +151,5 @@ class Comment(models.Model):
 
     class Meta:
         ordering = ['-pub_date']
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'

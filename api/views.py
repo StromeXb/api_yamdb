@@ -1,5 +1,7 @@
 import django_filters.rest_framework
 
+from django.conf import settings
+from django.db.models.aggregates import Avg
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, status, viewsets
@@ -103,7 +105,9 @@ class CategoryViewSet(ListCreateDestroyViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
+    queryset = Title.objects.annotate(
+        rating=Avg('reviews__score')
+    ).order_by('name')
     permission_classes = [IsAdminPermission]
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
     filterset_class = TitleFilter
@@ -120,22 +124,21 @@ def generate_code(request):
     """
     вью для отправки кода на почту
     """
-    if request.method == 'POST':
-        email = request.POST.get('email')
-        if email:
-            user, created = CustomUser.objects.get_or_create(email=email)
-            confirmation_code = default_token_generator.make_token(user)
-        else:
-            return Response(
-                'Please provide email via "email" field',
-                status=status.HTTP_403_FORBIDDEN
-            )
-        user.email_user(
-            subject='confirmation_code',
-            message=f'Your confirmation code is {confirmation_code}',
-            from_email='vader@starwars.tat'
+    email = request.POST.get('email')
+    if email:
+        user, created = CustomUser.objects.get_or_create(email=email)
+        confirmation_code = default_token_generator.make_token(user)
+    else:
+        return Response(
+            'Please provide email via "email" field',
+            status=status.HTTP_403_FORBIDDEN
         )
-        return Response({'confirmation_code': f'{confirmation_code}'})
+    user.email_user(
+        subject='confirmation_code',
+        message=f'Your confirmation code is {confirmation_code}',
+        from_email=settings.EMAIL_HOST_USER
+    )
+    return Response({'confirmation_code': f'{confirmation_code}'})
 
 
 class ConfirmationCodeTokenObtain(TokenViewBase):
