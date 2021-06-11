@@ -36,17 +36,23 @@ class Roles(models.TextChoices):
 
 class CustomUser(AbstractUser):
     username = models.CharField(max_length=30, unique=True,
-                                blank=False, null=False)
+                                blank=False, null=False,
+                                verbose_name='username')
     email = models.EmailField(max_length=255, unique=True,
-                              blank=False, null=False)
-    bio = models.CharField(max_length=4000, null=True)
-    role = models.CharField(max_length=50, choices=Roles.choices)
+                              blank=False, null=False,
+                              verbose_name='email')
+    bio = models.CharField(max_length=4000, null=True,
+                           verbose_name='Информация о себе')
+    role = models.CharField(max_length=50, choices=Roles.choices,
+                            verbose_name='Роль')
 
     EMAIL_FIELD = 'email'
     REQUIRED_FIELDS = []
 
     class Meta:
         ordering = ('-id',)
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
 
     @property
     def is_admin(self):
